@@ -34,4 +34,3 @@ print(model.predict(np.array([[6]])))  # 输出预测值
 - ✅ 逻辑回归（Logistic Regression）
 - ✅ 决策树（Decision Tree）
 - ✅ K-Means 聚类（K-Means Clustering）
-- 
