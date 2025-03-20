@@ -34,11 +34,4 @@ print(model.predict(np.array([[6]])))  # 输出预测值
 - ✅ 逻辑回归（Logistic Regression）
 - ✅ 决策树（Decision Tree）
 - ✅ K-Means 聚类（K-Means Clustering）
-
-## 🔥 未来计划（TODO）
-- [ ] 添加支持向量机（SVM）
-- [ ] 实现随机森林（Random Forest）
-
-## 🤝 反馈 & 交流
-这个项目主要是**我的个人学习项目**，如果你有任何改进建议或者想法，欢迎提 Issue！  
-
+- 
