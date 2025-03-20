@@ -6,7 +6,7 @@ setup(
     description='自己制作的机器学习库, gong',
     author='TGMax233_Michael',
     author_email='youremail@test.com',
-    packages=['myMLModule'],
+    packages=find_packages(),
     install_requires=[
         'numpy',
         'pandas'
