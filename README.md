@@ -5,7 +5,6 @@
 
 ## 🚀 安装
 ### **使用 `pip` 安装**
-如果你已配置 `setup.py`：
 ```bash
 pip install git+https://github.com/TGMax233Michael/MyMLModule.git
 ```
@@ -17,7 +16,7 @@ from MyMLModule.models.linear_model import LinearRegression
 import numpy as np
 
 # 创建数据
-X = np.array([[1], [2], [3], [4], [5]])
+X = np.array([1, 2, 3, 4, 5])
 y = np.array([2, 4, 6, 8, 10])
 
 # 训练模型
@@ -28,10 +27,8 @@ model.fit(X, y)
 print(model.predict(np.array([[6]])))  # 输出预测值
 ```
 
-
 ## 📌 目前实现的功能
 - ✅ 线性回归（Linear Regression）
 - ✅ 逻辑回归（Logistic Regression）
 - ✅ 决策树（Decision Tree）
 - ✅ K-Means 聚类（K-Means Clustering）
-- 
