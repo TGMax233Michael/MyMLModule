@@ -24,7 +24,7 @@ model = LinearRegression()
 model.fit(X, y)
 
 # 预测
-print(model.predict(np.array([[6]])))  # 输出预测值
+print(model.predict(np.array([6])))  # 输出预测值
 ```
 
 ## 📌 目前实现的功能
