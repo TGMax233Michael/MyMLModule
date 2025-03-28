@@ -24,7 +24,7 @@ model = LinearRegression()
 model.fit(X, y)
 
 # 预测
-print(model.predict(np.array([[6]])))  # 输出预测值
+print(model.predict(np.array([6])))  # 输出预测值
 ```
 
 ## 📌 目前实现的功能
@@ -32,4 +32,3 @@ print(model.predict(np.array([[6]])))  # 输出预测值
 - ✅ 逻辑回归（Logistic Regression）
 - ✅ 决策树（Decision Tree）
 - ✅ K-Means 聚类（K-Means Clustering）
-- ✅ 岭回归（Ridge Regression）
