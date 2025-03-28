@@ -47,3 +47,10 @@ class KMeans:
                 break
 
             self.centroids = new_centroids
+
+
+    def predict(self, X):
+        distance = self._calc_distance(X)
+        y_pred = np.argmin(distance, axis=1)
+
+        return y_pred

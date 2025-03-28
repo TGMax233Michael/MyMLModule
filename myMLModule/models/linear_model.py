@@ -12,7 +12,9 @@ def _softmax(X):
 """
     模型区
 """
-
+"""
+    1. 回归模型
+"""
 class LinearRegression:
     """
         Linear Regression
@@ -27,10 +29,10 @@ class LinearRegression:
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.method: str = method
-        self.weights = None
+        self._weights = None
 
     def _init_weights(self, n_features):
-        self.weights = np.zeros(shape=(n_features))
+        self._weights = np.zeros(shape=(n_features))
 
 
     # 梯度下降求解
@@ -40,17 +42,17 @@ class LinearRegression:
 
         for epoch in range(self.n_epoches):
             if self.batch_size <= 0:
-                y_pred = X @ self.weights
+                y_pred = X @ self._weights
                 loss = np.mean((y-y_pred) ** 2)
                 gradient = -X.T @ (y-y_pred) / n_samples
             else:
                 batch_indices = np.random.choice(n_samples, self.batch_size, replace=False)
                 X_batch, y_batch = X[batch_indices], y[batch_indices]
-                y_pred = X_batch @ self.weights
+                y_pred = X_batch @ self._weights
                 loss = np.mean((y_batch-y_pred) ** 2)
                 gradient = -X_batch.T @ (y_batch-y_pred) / n_samples
 
-            self.weights -= gradient * self.learning_rate
+            self._weights -= gradient * self.learning_rate
 
 
     # 最小二乘法求解
@@ -60,13 +62,15 @@ class LinearRegression:
 
         # 判断X^T @ X是否可逆
         if np.linalg.det(gram_matrix) != 0:
-            self.weights = np.linalg.inv(X.T @ X) @ X.T @ y
+            self._weights = np.linalg.inv(X.T @ X) @ X.T @ y
         else:
             raise np.linalg.LinAlgError("Gram矩阵是奇异矩阵（不可逆）, 无法使用最小二乘法，请使用梯度下降求解器")
 
 
-    # 拟合数据
     def fit(self, X: np.ndarray, y: np.ndarray):
+        if X.shape[0] != y.shape[0]:
+            raise ValueError(f"X 与 y 的样本数量不匹配 X: {X.shape}, y: {y.shape}")
+
         if X.ndim == 1:
             X = X.reshape(-1, 1)
 
@@ -89,12 +93,6 @@ class LinearRegression:
                     self._gradient_descent_fit(X, y)
             else:
                 self._gradient_descent_fit(X, y)
-
-        # elif self.method.lower() == "least_square":
-        #     self._least_square_fit(X, y)
-        # elif self.method.lower() == "gradient_descent":
-        #     self._gradient_descent_fit(X, y)
-
         else:
             solve_method = solve_methods.get(self.method.lower())
             if solve_method:
@@ -103,18 +101,51 @@ class LinearRegression:
                 raise KeyError("未知求解器")
 
 
-    # 预测
     def predict(self, X: np.ndarray):
         if X.ndim == 1:
             X = X.reshape(-1, 1)
 
         X = np.column_stack((np.ones(shape=(X.shape[0], 1)), X))
 
-        y_pred = X @ self.weights
+        y_pred = X @ self._weights
         return y_pred
 
 
 
+class RidgeRegression:
+    """
+        岭回归(L2正则化) Ridge
+        属性:
+            bias(bool): 是否添加偏置项
+            penalty: 惩罚力度 >= 0
+    """
+    def __init__(self, bias: bool=True, penalty: int|float=10):
+        self._weight = None
+        self.bias = bias
+        self.penalty = penalty
+
+
+    def fit(self, X: np.ndarray, y: np.ndarray):
+        if X.shape[0] != y.shape[0]:
+            raise ValueError(f"X 与 y 的样本数量不匹配 X: {X.shape}, y: {y.shape}")
+
+        if X.ndim == 1:
+            X = X.reshape(-1, 1)
+
+        if self.bias:
+            X = np.column_stack((np.ones(X.shape[0]), X))
+
+        self._weight = np.linalg.inv(X.T @ X + self.penalty) @ X.T @ y
+
+
+    def predict(self, X: np.ndarray):
+        y_pred = X @ self.coef_
+
+        return y_pred
+
+"""
+    分类模型
+"""
 class BinaryLogisticRegression:
     """
         逻辑回归二分类器 Binary Logistic Regression
@@ -128,15 +159,17 @@ class BinaryLogisticRegression:
         self.n_epoches = n_epoches
         self.learning_rate = learning_rate
         self.batch_size = batch_size
-        self.weights = None
+        self._weights = None
 
 
     def _init_weights(self, n_features):
-        self.weights =  np.zeros(shape=(n_features))
+        self._weights =  np.zeros(shape=(n_features))
 
 
-    # 拟合
     def fit(self, X: np.ndarray, y: np.ndarray):
+        if X.shape[0] != y.shape[0]:
+            raise ValueError(f"X 与 y 的样本数量不匹配 X: {X.shape}, y: {y.shape}")
+
         if X.ndim == 1:
             X = X.reshape(-1, 1)
 
@@ -146,26 +179,25 @@ class BinaryLogisticRegression:
 
         for epoch in range(self.n_epoches):
             if self.batch_size <= 0:
-                y_pred = _sigmoid(X @ self.weights)
+                y_pred = _sigmoid(X @ self._weights)
                 loss = np.mean(-y*np.log(y_pred) - (1-y)*np.log(1-y_pred))
                 gradient = -1/n_samples * X.T @ (y-y_pred)
             else:
                 batch_indices = np.random.choice(X.shape[0], self.batch_size, replace=False)
                 X_batch, y_batch = X[batch_indices], y[batch_indices]
-                y_pred = _sigmoid(X_batch @ self.weights)
+                y_pred = _sigmoid(X_batch @ self._weights)
                 loss = np.mean(-y_batch*np.log(y_pred) - (1-y_batch)*np.log(1-y_pred))
                 gradient = -1/n_samples * X_batch.T @ (y_batch-y_pred)
 
-            self.weights -= gradient * self.learning_rate
+            self._weights -= gradient * self.learning_rate
 
 
-    # 预测
     def predict(self, X: np.ndarray):
         if X.ndim == 1:
             X = X.reshape(-1, 1)
 
         X = np.column_stack((np.ones(shape=(X.shape[0], 1)), X))
-        y_pred = _sigmoid(X @ self.weights)
+        y_pred = _sigmoid(X @ self._weights)
         return y_pred
 
 
@@ -188,6 +220,9 @@ class LogisticRegression_ova:
 
 
     def fit(self, X: np.ndarray, y: np.ndarray):
+        if X.shape[0] != y.shape[0]:
+            raise ValueError(f"X 与 y 的样本数量不匹配 X: {X.shape}, y: {y.shape}")
+
         self.classes = np.unique(y)
 
         for c in self.classes:
@@ -225,15 +260,17 @@ class SoftmaxRegression:
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.classes = None
-        self.weights = None
+        self._weights = None
 
 
     def __init_weights(self, n_features):
-        self.weights = np.zeros(shape=(n_features, len(self.classes)))
+        self._weights = np.zeros(shape=(n_features, len(self.classes)))
 
 
-    # 拟合
     def fit(self, X: np.ndarray, y: np.ndarray):
+        if X.shape[0] != y.shape[0]:
+            raise ValueError(f"X 与 y 的样本数量不匹配 X: {X.shape}, y: {y.shape}")
+
         if X.ndim == 1:
             X = X.reshape(-1, 1)
 
@@ -244,28 +281,27 @@ class SoftmaxRegression:
 
         for epoch in range(self.n_epoches):
             if self.batch_size <= 0:
-                y_pred = X @ self.weights
+                y_pred = X @ self._weights
                 probs = _softmax(y_pred)
                 loss = np.mean(-np.sum(y * np.log(probs), axis=1))
                 gradient = -1/n_samples * X.T @ (y - probs)
             else:
                 batch_indices = np.random.choice(X.shape[0], self.batch_size, replace=False)
                 X_batch, y_batch = X[batch_indices], y[batch_indices]
-                y_pred = X_batch @ self.weights
+                y_pred = X_batch @ self._weights
                 probs = _softmax(y_pred)
                 loss = np.mean(-np.sum(y_batch * np.log(probs), axis=1))
                 gradient = -1/n_samples * X_batch.T @ (y_batch - probs)
 
-            self.weights -= gradient * self.learning_rate
+            self._weights -= gradient * self.learning_rate
 
 
-    # 预测
     def predict(self, X: np.ndarray):
         if X.ndim == 1:
             X = X.reshape(-1, 1)
 
         X = np.column_stack((np.ones(shape=(X.shape[0], 1)), X))
-        y_pred = np.argmax(_softmax(X @ self.weights), axis=1)
+        y_pred = np.argmax(_softmax(X @ self._weights), axis=1)
         return y_pred
 
 class LogisticRegression:
@@ -297,6 +333,9 @@ class LogisticRegression:
 
 
     def fit(self, X, y):
+        if X.shape[0] != y.shape[0]:
+            raise ValueError(f"X 与 y 的样本数量不匹配 X: {X.shape}, y: {y.shape}")
+
         self.model.fit(X, y)
 
 

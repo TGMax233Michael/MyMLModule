@@ -1,8 +1,8 @@
-from . import models, model_selection, preprocessing, metrics
+from . import models, preprocessing, metrics, utils
 
 __all__ = [
     "models",
-    "model_selection",
+    "utils",
     "preprocessing",
     "metrics"
 ]
