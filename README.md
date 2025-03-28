@@ -28,7 +28,9 @@ print(model.predict(np.array([6])))  # 输出预测值
 ```
 
 ## 📌 目前实现的功能
-- ✅ 线性回归（Linear Regression）
-- ✅ 逻辑回归（Logistic Regression）
-- ✅ 决策树（Decision Tree）
-- ✅ K-Means 聚类（K-Means Clustering）
+- ✅ 线性回归 Linear Regression
+- ✅ 岭回归 Ridge Regression
+- ✅ 逻辑回归 Logistic Regression
+- ✅ 决策树 Decision Tree
+- ✅ K-Means 聚类 K-Means Clustering
+- ⚠️ 支持向量机 SVM (暂不支持核函数 Kernel not supported)
